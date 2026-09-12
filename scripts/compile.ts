@@ -8,10 +8,19 @@
 //
 // Usage: deno run -A scripts/compile.ts [-o OUTPUT]
 
+/** Where the binary lands unless `-o` says otherwise. */
+const DEFAULT_OUTPUT = "tmp/dist/cadscript"
+
 const output = (() => {
     const i = Deno.args.indexOf("-o")
-    return i >= 0 && i + 1 < Deno.args.length ? Deno.args[i + 1] : "cadscript"
+    return i >= 0 && i + 1 < Deno.args.length
+        ? Deno.args[i + 1]
+        : DEFAULT_OUTPUT
 })()
+
+// `deno compile` will not create the directory it is pointed at.
+const directory = output.slice(0, output.lastIndexOf("/"))
+if (directory !== "") await Deno.mkdir(directory, { recursive: true })
 
 const args = [
     "compile",

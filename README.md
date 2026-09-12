@@ -5,10 +5,10 @@ how to turn them into a shape; `cadscript` parses the command line, runs the
 script in a sandbox, and writes the model.
 
 ```console
-$ deno task compile
-$ ./cadscript examples/box.ts --width 40 --height 15 -o box.stl
-$ ./cadscript examples/flange.ts --bolts 8 --step -o flange.step
-$ ./cadscript examples/box.ts --help
+$ deno task compile   # builds tmp/dist/cadscript
+$ tmp/dist/cadscript examples/box.ts --width 40 --height 15 -o box.stl
+$ tmp/dist/cadscript examples/flange.ts --bolts 8 --step -o flange.step
+$ tmp/dist/cadscript examples/box.ts --help
 ```
 
 ## Writing a script
@@ -122,7 +122,7 @@ OpenCascade's WASM is read by the interpreter and handed to the worker over
 ```console
 $ deno task check      # type check
 $ deno task test       # unit tests, plus end-to-end tests if built
-$ deno task compile    # build ./cadscript
+$ deno task compile    # build tmp/dist/cadscript
 $ deno task fmt        # format
 ```
 

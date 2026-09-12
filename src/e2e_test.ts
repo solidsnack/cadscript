@@ -6,7 +6,7 @@
 
 import { assertEquals, assertStringIncludes } from "@std/assert"
 
-const BINARY = new URL("../cadscript", import.meta.url).pathname
+const BINARY = new URL("../tmp/dist/cadscript", import.meta.url).pathname
 
 async function built(): Promise<boolean> {
     try {
