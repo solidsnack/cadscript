@@ -146,17 +146,15 @@ $ deno task compile    # build tmp/dist/cadscript
 $ deno task fmt        # format
 ```
 
-The end-to-end tests are skipped until the binary exists, and the tests expect
-to be run from the project root.
+The tests live in `src/test/`, and the scripts they run the interpreter against
+in `src/test/fixtures/`. The end-to-end tests are skipped until the binary
+exists, and the tests expect to be run from the project root.
+
+`deno task check` reaches the sources and the tests but not the fixtures: one
+of them imports `@std/http` on purpose, to check that the interpreter turns
+that away, and so it cannot type check.
 
 Running `src/mod.ts` directly with `deno run` will not execute a script: a
 script's bare imports can only be resolved from the module graph compiled into
 the binary, and the sandboxed worker is not allowed to fetch them. Build the
 binary and run that.
-
-## Not yet implemented
-
-`--view`, which would open the model in Replicad's viewer, is not here.
-`Deno.BrowserWindow` belongs to `deno desktop`, a different build than
-`deno compile`, so a viewer means shipping the interpreter as a desktop
-application as well.

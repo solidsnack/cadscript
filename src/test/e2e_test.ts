@@ -6,7 +6,7 @@
 
 import { assertEquals, assertStringIncludes } from "@std/assert"
 
-const BINARY = new URL("../tmp/dist/cadscript", import.meta.url).pathname
+const BINARY = new URL("../../tmp/dist/cadscript", import.meta.url).pathname
 
 async function built(): Promise<boolean> {
     try {
@@ -98,7 +98,7 @@ Deno.test({
     name: "e2e: refuses an import that is not compiled in",
     ignore,
     async fn() {
-        const run = await cadscript("tests/fixtures/bad-import.ts")
+        const run = await cadscript("src/test/fixtures/bad-import.ts")
         assertEquals(run.code, 1)
         assertStringIncludes(run.stderr, "does not provide")
     },
@@ -118,7 +118,7 @@ Deno.test({
     name: "e2e: refuses to write a drawing as STL",
     ignore,
     async fn() {
-        const run = await cadscript("tests/fixtures/flat.ts")
+        const run = await cadscript("src/test/fixtures/flat.ts")
         assertEquals(run.code, 1)
         assertStringIncludes(run.stderr, "2-D drawing")
     },
@@ -139,7 +139,7 @@ Deno.test({
     name: "e2e: the sandbox refuses network, subprocesses and the wider disk",
     ignore,
     async fn() {
-        const run = await cadscript("tests/fixtures/escape.ts")
+        const run = await cadscript("src/test/fixtures/escape.ts")
         assertEquals(run.code, 0)
         assertEquals(run.stderr.includes("ESCAPED"), false)
         for (const what of ["net", "run", "env", "read /etc", "write /tmp"]) {

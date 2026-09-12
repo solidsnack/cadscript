@@ -1,6 +1,6 @@
 import { assertEquals, assertStringIncludes } from "@std/assert"
 
-import { chooseFormat, extensionOf, STDOUT } from "./format.ts"
+import { chooseFormat, extensionOf, STDOUT } from "../format.ts"
 
 Deno.test("extensionOf reads the extension off a path", () => {
     assertEquals(extensionOf("out.stl"), "stl")

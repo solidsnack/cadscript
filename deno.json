@@ -5,7 +5,7 @@
     "tasks": {
         "compile": "deno run -A scripts/compile.ts",
         "registry": "deno run -A scripts/gen-registry.ts",
-        "check": "deno check src/ examples/ scripts/",
+        "check": "deno check src/*.ts src/test/*_test.ts examples/ scripts/",
         "test": "deno test -A src/",
         "fmt": "deno fmt"
     },

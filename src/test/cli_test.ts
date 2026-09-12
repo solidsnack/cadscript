@@ -1,7 +1,7 @@
 import { assertEquals } from "@std/assert"
 import { parse } from "@optique/core/parser"
 
-import { parser, split } from "./cli.ts"
+import { parser, split } from "../cli.ts"
 
 Deno.test("split keeps the interpreter's options and the script path", () => {
     const { interpreter, script } = split([

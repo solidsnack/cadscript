@@ -1,8 +1,8 @@
 import { assertEquals, assertRejects, assertStringIncludes } from "@std/assert"
 
-import { FormatError, serialize } from "./format.ts"
-import { checkScript } from "./script.ts"
-import type { Renderable } from "./script.ts"
+import { FormatError, serialize } from "../format.ts"
+import { checkScript } from "../script.ts"
+import type { Renderable } from "../script.ts"
 
 // The serializer recognizes replicad's shapes by the methods they carry, so
 // these stand in for the real things without an OpenCascade instance.
