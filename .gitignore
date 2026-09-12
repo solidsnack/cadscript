@@ -1,0 +1,6 @@
+/.claude
+/Cargo.lock
+/flake.lock
+/node_modules
+/target
+/tmp
