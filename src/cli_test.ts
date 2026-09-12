@@ -57,11 +57,11 @@ Deno.test("split leaves a valueless -o for the parser to reject", () => {
     assertEquals(interpreter, ["model.ts", "-o"])
 })
 
-Deno.test("the format defaults to STL", () => {
+Deno.test("an unstated format stays unstated, to be inferred later", () => {
     const result = parse(parser, ["model.ts"])
     assertEquals(result.success, true)
     if (result.success) {
-        assertEquals(result.value.format, "stl")
+        assertEquals(result.value.format, undefined)
         assertEquals(result.value.script, "model.ts")
         assertEquals(result.value.output, undefined)
     }

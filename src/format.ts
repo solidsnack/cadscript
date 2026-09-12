@@ -7,9 +7,79 @@ export const FORMATS = ["stl", "step"] as const
 
 export type Format = (typeof FORMATS)[number]
 
-/** Whether the format is binary, and so unfit for a terminal. */
-export function isBinary(format: Format): boolean {
-    return format === "stl"
+/**
+ * The output path that means standard output. A file that really is named
+ * `-` can be written by giving a path with a slash in it: `./-`.
+ */
+export const STDOUT = "-"
+
+/** The file extensions the interpreter can read a format out of. */
+const BY_EXTENSION: Readonly<Record<string, Format>> = {
+    stl: "stl",
+    step: "step",
+    stp: "step",
+}
+
+/**
+ * The extension of a path, lower cased and without the dot, or `undefined`
+ * when there is none. A leading dot makes a hidden file rather than an
+ * extension, so `.stl` is a file called `.stl`.
+ */
+export function extensionOf(path: string): string | undefined {
+    const slash = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"))
+    const name = path.slice(slash + 1)
+    const dot = name.lastIndexOf(".")
+    if (dot <= 0) return undefined
+    const extension = name.slice(dot + 1).toLowerCase()
+    return extension === "" ? undefined : extension
+}
+
+export type FormatChoice =
+    | {
+        readonly ok: true
+        readonly format: Format
+        /** Said when the option and the file extension disagree. */
+        readonly warning?: string
+    }
+    | { readonly ok: false; readonly error: string }
+
+/**
+ * Settles on an output format.
+ *
+ * An explicit `--stl` or `--step` always decides it, and only disagrees out
+ * loud when the output is named for the other format. Otherwise the name of
+ * the output file decides: a known extension picks the format, no extension
+ * at all means STL, and an extension that means nothing here is a question
+ * worth asking rather than guessing at.
+ */
+export function chooseFormat(
+    explicit: Format | undefined,
+    output: string | undefined,
+): FormatChoice {
+    const extension = output == null || output === STDOUT
+        ? undefined
+        : extensionOf(output)
+    const inferred = extension == null ? undefined : BY_EXTENSION[extension]
+
+    if (explicit != null) {
+        return inferred != null && inferred !== explicit
+            ? {
+                ok: true,
+                format: explicit,
+                warning: `--${explicit} overrides the \`.${extension}\` ` +
+                    `output name; writing ${explicit.toUpperCase()}`,
+            }
+            : { ok: true, format: explicit }
+    }
+
+    if (extension == null) return { ok: true, format: "stl" }
+    if (inferred != null) return { ok: true, format: inferred }
+    return {
+        ok: false,
+        error: `cannot tell which format \`.${extension}\` means; ` +
+            `name the output \`.${Object.keys(BY_EXTENSION).join("`, `.")}\`` +
+            `, or pass --stl or --step`,
+    }
 }
 
 interface Solid {

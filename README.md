@@ -72,7 +72,7 @@ Returning a drawing anyway is an error that says as much.
 The interpreter takes the options it knows, and reserves the rest for the
 script.
 
-- `--stl` -- write an STL file. This is the default.
+- `--stl` -- write an STL file.
 - `--step` -- write a STEP file.
 - `-o`, `--output PATH` -- where to write the model. Standard output by
   default, which may also be named as `-`.
@@ -97,8 +97,30 @@ The model goes to standard output when no `-o` is given, so scripts compose:
 $ cadscript examples/flange.ts --step | grep -c CARTESIAN_POINT
 ```
 
-`cadscript` refuses to write binary STL to a terminal. Everything the script
-prints goes to standard error, so standard output carries only the model.
+`cadscript` will not write a model to a terminal: redirect it, or name a file.
+Everything the script prints goes to standard error, so standard output carries
+only the model.
+
+### Choosing the format
+
+`--stl` and `--step` settle the format outright. Without either, the name of
+the output file decides:
+
+- no extension, or writing to standard output -- STL;
+- `.stl`, `.step` or `.stp` -- the format that extension names;
+- any other extension -- `cadscript` will not guess, and asks for `--stl` or
+  `--step`.
+
+When an option and the file extension disagree, the option wins and `cadscript`
+says so:
+
+```console
+$ cadscript model.ts --stl -o part.step
+cadscript: warning: --stl overrides the `.step` output name; writing STL
+```
+
+A lone `-` means standard output. To write a file that really is called `-`,
+give a path with a slash in it -- `./-`.
 
 ## The sandbox
 

@@ -11,7 +11,7 @@ import { formatDocPage } from "@optique/core/doc"
 import { formatMessage } from "@optique/core/message"
 
 import { parser, program, split, VERSION } from "./cli.ts"
-import { isBinary } from "./format.ts"
+import { chooseFormat, STDOUT } from "./format.ts"
 import type { Format } from "./format.ts"
 import type { Job, Reply } from "./protocol.ts"
 
@@ -95,11 +95,11 @@ async function write(
     output: string | undefined,
     format: Format,
 ): Promise<void> {
-    if (output == null || output === "-") {
-        if (Deno.stdout.isTerminal() && isBinary(format)) {
+    if (output == null || output === STDOUT) {
+        if (Deno.stdout.isTerminal()) {
             fail(
                 `refusing to write ${format.toUpperCase()} to the terminal; ` +
-                    `name a file with --output`,
+                    `redirect it, or name a file with --output`,
             )
         }
         await Deno.stdout.write(bytes)
@@ -152,28 +152,42 @@ async function main(argv: readonly string[]): Promise<void> {
         args: parts.script,
         debug: options.debug === true,
     }
-    const job: Job = options.help === true
-        ? { kind: "help", program: `cadscript ${options.script}`, ...common }
-        : {
-            kind: "render",
-            format: options.format,
-            wasm: await openCascade(),
+
+    if (options.help === true) {
+        log("running the script to show its help")
+        const reply = await runSandboxed({
+            kind: "help",
+            program: `cadscript ${options.script}`,
             ...common,
-        }
-    log(`running the script to ${
-        job.kind === "help" ? "show help" : "render"
-    }`)
-
-    const reply = await runSandboxed(job, read)
-    if (!reply.ok) fail(reply.error)
-
-    if (reply.kind === "help") {
-        console.log(reply.text)
+        }, read)
+        if (!reply.ok) fail(reply.error)
+        if (reply.kind === "help") console.log(reply.text)
         return
     }
 
+    const choice = chooseFormat(options.format, options.output)
+    if (!choice.ok) {
+        console.error(`cadscript: ${choice.error}`)
+        Deno.exit(2)
+    }
+    if (choice.warning != null) {
+        console.error(`cadscript: warning: ${choice.warning}`)
+    }
+    log(`writing ${choice.format}`)
+
+    const reply = await runSandboxed({
+        kind: "render",
+        format: choice.format,
+        wasm: await openCascade(),
+        ...common,
+    }, read)
+    if (!reply.ok) fail(reply.error)
+    if (reply.kind !== "render") {
+        fail("the sandbox answered the wrong kind of job")
+    }
+
     log(`writing ${reply.bytes.length} bytes`)
-    await write(reply.bytes, options.output, options.format)
+    await write(reply.bytes, options.output, choice.format)
 }
 
 if (import.meta.main) {

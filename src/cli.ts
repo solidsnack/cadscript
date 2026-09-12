@@ -81,18 +81,18 @@ export function split(args: readonly string[]): Split {
 export const parser = object({
     format: or(
         flag("--stl", {
-            description: tidy(
-                message`Write an STL file. This is the default.`,
-            ),
+            description: tidy(message`Write an STL file.`),
         }).map(() => "stl" as const),
         flag("--step", {
             description: tidy(message`Write a STEP file.`),
         }).map(() => "step" as const),
-    ).withDefault("stl" as const),
+    ).optional(),
     output: option("-o", "--output", string({ metavar: "PATH" }), {
         description: tidy(
-            message`Where to write the model. Defaults to standard
-            output, which may also be named as \`-\`.`,
+            message`Where to write the model, and, unless --stl or --step
+            says otherwise, what format to write: \`.stl\`, \`.step\` or
+            \`.stp\`. Defaults to standard output, which may also be named
+            as \`-\`; to write a file called \`-\`, say \`./-\`.`,
         ),
     }).optional(),
     debug: flag("-d", "--debug", {

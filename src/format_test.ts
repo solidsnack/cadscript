@@ -1,6 +1,6 @@
 import { assertEquals, assertRejects, assertStringIncludes } from "@std/assert"
 
-import { FormatError, isBinary, serialize } from "./format.ts"
+import { FormatError, serialize } from "./format.ts"
 import { checkScript } from "./script.ts"
 import type { Renderable } from "./script.ts"
 
@@ -48,11 +48,6 @@ Deno.test("something that is not a solid is refused", async () => {
         FormatError,
     )
     assertStringIncludes(error.message, "has to return a solid")
-})
-
-Deno.test("only STL is binary", () => {
-    assertEquals(isBinary("stl"), true)
-    assertEquals(isBinary("step"), false)
 })
 
 Deno.test("checkScript accepts a well formed script", () => {

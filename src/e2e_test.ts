@@ -142,3 +142,78 @@ Deno.test({
         }
     },
 })
+
+Deno.test({
+    name: "e2e: infers STEP from a .step output name",
+    ignore,
+    async fn() {
+        const out = await Deno.makeTempFile({ suffix: ".step" })
+        try {
+            const run = await cadscript("examples/box.ts", "-o", out)
+            assertEquals(run.code, 0)
+            const written = await Deno.readTextFile(out)
+            assertStringIncludes(written, "ISO-10303-21")
+        } finally {
+            await Deno.remove(out)
+        }
+    },
+})
+
+Deno.test({
+    name: "e2e: infers STL from a .stl output name",
+    ignore,
+    async fn() {
+        const out = await Deno.makeTempFile({ suffix: ".stl" })
+        try {
+            const run = await cadscript("examples/box.ts", "-o", out)
+            assertEquals(run.code, 0)
+            const written = await Deno.readFile(out)
+            assertEquals(written.length > 84, true)
+            const head = new TextDecoder().decode(written.slice(0, 20))
+            assertEquals(head.includes("ISO-10303"), false)
+        } finally {
+            await Deno.remove(out)
+        }
+    },
+})
+
+Deno.test({
+    name: "e2e: asks about an output name it cannot read a format from",
+    ignore,
+    async fn() {
+        const run = await cadscript("examples/box.ts", "-o", "/tmp/x.dat")
+        assertEquals(run.code, 2)
+        assertStringIncludes(run.stderr, ".dat")
+        assertStringIncludes(run.stderr, "--stl")
+    },
+})
+
+Deno.test({
+    name: "e2e: warns when the option and the output name disagree",
+    ignore,
+    async fn() {
+        const out = await Deno.makeTempFile({ suffix: ".step" })
+        try {
+            const run = await cadscript("examples/box.ts", "--stl", "-o", out)
+            assertEquals(run.code, 0)
+            assertStringIncludes(run.stderr, "warning")
+            // The option wins: an STL, despite the name.
+            const head = new TextDecoder().decode(
+                (await Deno.readFile(out)).slice(0, 20),
+            )
+            assertEquals(head.includes("ISO-10303"), false)
+        } finally {
+            await Deno.remove(out)
+        }
+    },
+})
+
+Deno.test({
+    name: "e2e: a plain - is standard output",
+    ignore,
+    async fn() {
+        const run = await cadscript("examples/box.ts", "--step", "-o", "-")
+        assertEquals(run.code, 0)
+        assertStringIncludes(text(run), "ISO-10303-21")
+    },
+})
