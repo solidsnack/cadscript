@@ -1,0 +1,74 @@
+// A bolt flange, to show a script drawing in two dimensions before giving
+// the drawing thickness, and using a Deno standard library along the way.
+//
+//   cadscript examples/flange.ts --bolts 8 --step -o flange.step
+//   cadscript examples/flange.ts --flat --svg -o flange.svg
+
+import { object, option } from "@optique/core"
+import { flag } from "@optique/core/primitives"
+import { float, integer } from "@optique/core/valueparser"
+import { message } from "@optique/core/message"
+import { sumOf } from "@std/collections/sum-of"
+import { drawCircle } from "replicad"
+import type { AnyShape, Drawing } from "replicad"
+
+interface Options {
+    radius: number
+    bore: number
+    bolts: number
+    boltRadius: number
+    thickness: number
+    flat: boolean
+}
+
+export default {
+    parser: object({
+        radius: option("-r", "--radius", float({ min: 1 }), {
+            description: message`The outer radius of the flange.`,
+        }).withDefault(40),
+        bore: option("-b", "--bore", float({ min: 1 }), {
+            description: message`The radius of the central bore.`,
+        }).withDefault(15),
+        bolts: option("-n", "--bolts", integer({ min: 0 }), {
+            description: message`How many bolt holes to space around it.`,
+        }).withDefault(6),
+        boltRadius: option("--bolt-radius", float({ min: 0.5 }), {
+            description: message`The radius of each bolt hole.`,
+        }).withDefault(3),
+        thickness: option("-t", "--thickness", float({ min: 0.1 }), {
+            description: message`How thick the flange is.`,
+        }).withDefault(6),
+        flat: flag("--flat", {
+            description: message`Leave the flange as a 2-D drawing, which can
+                be written with --svg.`,
+        }).withDefault(false),
+    }),
+
+    render(options: Options): Promise<Drawing | AnyShape> {
+        const { radius, bore, bolts, boltRadius, thickness, flat } = options
+
+        let drawing: Drawing = drawCircle(radius).cut(drawCircle(bore))
+        const angles: number[] = []
+        for (let i = 0; i < bolts; i++) {
+            const angle = (2 * Math.PI * i) / bolts
+            angles.push(angle)
+            const centre = (radius + bore) / 2
+            drawing = drawing.cut(
+                drawCircle(boltRadius).translate(
+                    centre * Math.cos(angle),
+                    centre * Math.sin(angle),
+                ),
+            )
+        }
+
+        // A standard library import, purely to show that it works.
+        console.debug(
+            `bolt angles sum to ${sumOf(angles, (a) => a).toFixed(3)} rad`,
+        )
+
+        if (flat) return Promise.resolve(drawing)
+        return Promise.resolve(
+            drawing.sketchOnPlane("XY").extrude(thickness),
+        )
+    },
+}
