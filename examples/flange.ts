@@ -6,6 +6,7 @@
 import { object, option } from "@optique/core"
 import { float, integer } from "@optique/core/valueparser"
 import { message } from "@optique/core/message"
+import type { FluentParser } from "@optique/core/fluent"
 import { sumOf } from "@std/collections/sum-of"
 import { drawCircle } from "replicad"
 import type { AnyShape, Drawing } from "replicad"
@@ -18,24 +19,26 @@ interface Options {
     thickness: number
 }
 
+const parser: FluentParser<"sync", Options, unknown> = object({
+    radius: option("--radius", float({ min: 1 }), {
+        description: message`The outer radius of the flange.`,
+    }).withDefault(40),
+    bore: option("--bore", float({ min: 1 }), {
+        description: message`The radius of the central bore.`,
+    }).withDefault(20),
+    bolts: option("--bolts", integer({ min: 0 }), {
+        description: message`How many bolt holes to space around it.`,
+    }).withDefault(5),
+    boltRadius: option("--bolt-radius", float({ min: 0.5 }), {
+        description: message`The radius of each bolt hole.`,
+    }).withDefault(2),
+    thickness: option("--thickness", float({ min: 0.1 }), {
+        description: message`How thick the flange is.`,
+    }).withDefault(5),
+})
+
 export default {
-    parser: object({
-        radius: option("--radius", float({ min: 1 }), {
-            description: message`The outer radius of the flange.`,
-        }).withDefault(40),
-        bore: option("--bore", float({ min: 1 }), {
-            description: message`The radius of the central bore.`,
-        }).withDefault(20),
-        bolts: option("--bolts", integer({ min: 0 }), {
-            description: message`How many bolt holes to space around it.`,
-        }).withDefault(5),
-        boltRadius: option("--bolt-radius", float({ min: 0.5 }), {
-            description: message`The radius of each bolt hole.`,
-        }).withDefault(2),
-        thickness: option("--thickness", float({ min: 0.1 }), {
-            description: message`How thick the flange is.`,
-        }).withDefault(5),
-    }),
+    parser,
 
     render(options: Options): Promise<AnyShape> {
         const { radius, bore, bolts, boltRadius, thickness } = options

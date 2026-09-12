@@ -20,20 +20,35 @@ A script's default export has two properties: an Optique `parser`, and an async
 import { object, option } from "@optique/core"
 import { float } from "@optique/core/valueparser"
 import { message } from "@optique/core/message"
+import type { FluentParser } from "@optique/core/fluent"
 import { drawCircle } from "replicad"
+import type { AnyShape } from "replicad"
+
+interface Options {
+    radius: number
+}
+
+const parser: FluentParser<"sync", Options, unknown> = object({
+    radius: option("--radius", float({ min: 1 }), {
+        description: message`The radius of the disc.`,
+    }).withDefault(10),
+})
 
 export default {
-    parser: object({
-        radius: option("-r", "--radius", float({ min: 1 }), {
-            description: message`The radius of the disc.`,
-        }).withDefault(10),
-    }),
+    parser,
 
-    async render({ radius }: { radius: number }) {
+    async render({ radius }: Options): Promise<AnyShape> {
         return drawCircle(radius).sketchOnPlane("XY").extrude(2)
     },
 }
 ```
+
+Neither annotation is required -- both are inferred -- but writing them down is
+worth it. Naming the parser's type ties it to the same `Options` that `render`
+takes, so the two cannot drift apart unnoticed, and the return type turns the
+commonest mistake, handing back a flat `Drawing`, into something the compiler
+catches rather than the interpreter. The third type parameter is the parser's
+own bookkeeping, which a script never needs; `unknown` says so.
 
 Run it, and the script's own options appear on the command line:
 
