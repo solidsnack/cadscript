@@ -18,7 +18,6 @@ const VALUED = new Set(["-o", "--output"])
 const FLAGS = new Set([
     "--stl",
     "--step",
-    "--svg",
     "-d",
     "--debug",
     "--version",
@@ -89,9 +88,6 @@ export const parser = object({
         flag("--step", {
             description: tidy(message`Write a STEP file.`),
         }).map(() => "step" as const),
-        flag("--svg", {
-            description: tidy(message`Write an SVG file, for a 2-D drawing.`),
-        }).map(() => "svg" as const),
     ).withDefault("stl" as const),
     output: option("-o", "--output", string({ metavar: "PATH" }), {
         description: tidy(

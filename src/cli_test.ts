@@ -68,12 +68,7 @@ Deno.test("the format defaults to STL", () => {
 })
 
 Deno.test("each format option is understood", () => {
-    for (
-        const [option, format] of [["--stl", "stl"], ["--step", "step"], [
-            "--svg",
-            "svg",
-        ]]
-    ) {
+    for (const [option, format] of [["--stl", "stl"], ["--step", "step"]]) {
         const result = parse(parser, [option, "model.ts"])
         assertEquals(result.success, true)
         if (result.success) assertEquals(result.value.format, format)

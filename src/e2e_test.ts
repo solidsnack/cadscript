@@ -59,12 +59,12 @@ Deno.test({
 })
 
 Deno.test({
-    name: "e2e: renders a drawing as SVG",
+    name: "e2e: renders the flange as STEP",
     ignore,
     async fn() {
-        const run = await cadscript("examples/flange.ts", "--flat", "--svg")
+        const run = await cadscript("examples/flange.ts", "-n", "8", "--step")
         assertEquals(run.code, 0)
-        assertStringIncludes(text(run), "<svg")
+        assertStringIncludes(text(run), "ISO-10303-21")
     },
 })
 
@@ -113,7 +113,7 @@ Deno.test({
     name: "e2e: refuses to write a drawing as STL",
     ignore,
     async fn() {
-        const run = await cadscript("examples/flange.ts", "--flat")
+        const run = await cadscript("tests/fixtures/flat.ts")
         assertEquals(run.code, 1)
         assertStringIncludes(run.stderr, "2-D drawing")
     },
@@ -134,7 +134,7 @@ Deno.test({
     name: "e2e: the sandbox refuses network, subprocesses and the wider disk",
     ignore,
     async fn() {
-        const run = await cadscript("tests/fixtures/escape.ts", "--svg")
+        const run = await cadscript("tests/fixtures/escape.ts")
         assertEquals(run.code, 0)
         assertEquals(run.stderr.includes("ESCAPED"), false)
         for (const what of ["net", "run", "env", "read /etc", "write /tmp"]) {

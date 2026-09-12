@@ -26,11 +26,6 @@ Deno.test("a solid is written as STEP", async () => {
     assertStringIncludes(new TextDecoder().decode(bytes), "ISO-10303-21")
 })
 
-Deno.test("a drawing is written as SVG", async () => {
-    const bytes = await serialize(drawing, "svg")
-    assertEquals(new TextDecoder().decode(bytes), "<svg/>")
-})
-
 Deno.test("a drawing cannot be written as STL", async () => {
     const error = await assertRejects(
         () => serialize(drawing, "stl"),
@@ -39,22 +34,25 @@ Deno.test("a drawing cannot be written as STL", async () => {
     assertStringIncludes(error.message, "extrude")
 })
 
-Deno.test("a solid cannot be written as SVG", async () => {
-    await assertRejects(() => serialize(solid, "svg"), FormatError)
+Deno.test("a drawing cannot be written as STEP either", async () => {
+    const error = await assertRejects(
+        () => serialize(drawing, "step"),
+        FormatError,
+    )
+    assertStringIncludes(error.message, "2-D drawing")
 })
 
-Deno.test("something that is neither is refused", async () => {
+Deno.test("something that is not a solid is refused", async () => {
     const error = await assertRejects(
         () => serialize({} as Renderable, "stl"),
         FormatError,
     )
-    assertStringIncludes(error.message, "neither")
+    assertStringIncludes(error.message, "has to return a solid")
 })
 
 Deno.test("only STL is binary", () => {
     assertEquals(isBinary("stl"), true)
     assertEquals(isBinary("step"), false)
-    assertEquals(isBinary("svg"), false)
 })
 
 Deno.test("checkScript accepts a well formed script", () => {

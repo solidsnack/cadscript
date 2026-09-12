@@ -56,17 +56,16 @@ fetched when a script runs, and nothing outside the list below can be reached.
 Importing anything else fails with a message saying so, rather than a resolver
 error. `deno task registry` regenerates the list from JSR.
 
-### What `render` may return
+### What `render` returns
 
-STL and STEP describe solids, so `render` has to return a three dimensional
-shape for those. Replicad's `Drawing` is flat: it can be written as SVG with
-`--svg`, or given thickness first.
+STL and STEP describe solids, so `render` returns replicad's `AnyShape`.
+Replicad's `Drawing` is flat, and has to be given thickness first:
 
 ```ts
-drawing.sketchOnPlane("XY").extrude(10) // now it can be written as STL
+drawing.sketchOnPlane("XY").extrude(10) // now it can be written
 ```
 
-Returning a `Drawing` and asking for STL is an error that says as much.
+Returning a drawing anyway is an error that says as much.
 
 ## The command line
 
@@ -75,7 +74,6 @@ script.
 
 - `--stl` -- write an STL file. This is the default.
 - `--step` -- write a STEP file.
-- `--svg` -- write an SVG file, for a 2-D drawing.
 - `-o`, `--output PATH` -- where to write the model. Standard output by
   default, which may also be named as `-`.
 - `-d`, `--debug` -- log what the interpreter is doing, and show
@@ -96,7 +94,7 @@ Here `-o out.stl` is the interpreter's and `-o inner-part` is the script's.
 The model goes to standard output when no `-o` is given, so scripts compose:
 
 ```console
-$ cadscript examples/flange.ts --flat --svg | rsvg-convert > flange.png
+$ cadscript examples/flange.ts --step | grep -c CARTESIAN_POINT
 ```
 
 `cadscript` refuses to write binary STL to a terminal. Everything the script

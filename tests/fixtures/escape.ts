@@ -26,6 +26,6 @@ export default {
                 console.log(`refused: ${what} (${name})`)
             }
         }
-        return drawCircle(5)
+        return drawCircle(5).sketchOnPlane("XY").extrude(1)
     },
 }

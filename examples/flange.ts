@@ -2,10 +2,8 @@
 // the drawing thickness, and using a Deno standard library along the way.
 //
 //   cadscript examples/flange.ts --bolts 8 --step -o flange.step
-//   cadscript examples/flange.ts --flat --svg -o flange.svg
 
 import { object, option } from "@optique/core"
-import { flag } from "@optique/core/primitives"
 import { float, integer } from "@optique/core/valueparser"
 import { message } from "@optique/core/message"
 import { sumOf } from "@std/collections/sum-of"
@@ -18,7 +16,6 @@ interface Options {
     bolts: number
     boltRadius: number
     thickness: number
-    flat: boolean
 }
 
 export default {
@@ -38,14 +35,10 @@ export default {
         thickness: option("-t", "--thickness", float({ min: 0.1 }), {
             description: message`How thick the flange is.`,
         }).withDefault(6),
-        flat: flag("--flat", {
-            description: message`Leave the flange as a 2-D drawing, which can
-                be written with --svg.`,
-        }).withDefault(false),
     }),
 
-    render(options: Options): Promise<Drawing | AnyShape> {
-        const { radius, bore, bolts, boltRadius, thickness, flat } = options
+    render(options: Options): Promise<AnyShape> {
+        const { radius, bore, bolts, boltRadius, thickness } = options
 
         let drawing: Drawing = drawCircle(radius).cut(drawCircle(bore))
         const angles: number[] = []
@@ -66,7 +59,6 @@ export default {
             `bolt angles sum to ${sumOf(angles, (a) => a).toFixed(3)} rad`,
         )
 
-        if (flat) return Promise.resolve(drawing)
         return Promise.resolve(
             drawing.sketchOnPlane("XY").extrude(thickness),
         )

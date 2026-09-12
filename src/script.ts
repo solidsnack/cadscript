@@ -1,20 +1,19 @@
 // The contract a CAD script has to satisfy.
 
 import type { Mode, Parser } from "@optique/core/parser"
-import type { AnyShape, Drawing } from "replicad"
+import type { AnyShape } from "replicad"
 
 /**
- * What a script's `render` may hand back.
+ * What a script's `render` has to hand back.
  *
- * Replicad's `Drawing` is two dimensional, so it can only be written as
- * SVG.  The solid modelling formats -- STL and STEP -- need a three
- * dimensional shape, which a drawing becomes once it is given thickness:
+ * STL and STEP describe solids, so a two dimensional drawing has to be given
+ * thickness before it can be written:
  *
  * ```ts
  * drawing.sketchOnPlane("XY").extrude(10)
  * ```
  */
-export type Renderable = Drawing | AnyShape
+export type Renderable = AnyShape
 
 /**
  * A CAD script's default export.
