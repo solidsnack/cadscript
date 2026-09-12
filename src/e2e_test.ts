@@ -38,7 +38,7 @@ Deno.test({
     name: "e2e: renders a solid as STL",
     ignore,
     async fn() {
-        const run = await cadscript("examples/box.ts", "-w", "12")
+        const run = await cadscript("examples/box.ts", "--width", "12")
         assertEquals(run.code, 0)
         // A binary STL is an 80 byte header, then a triangle count.
         assertEquals(run.stdout.length > 84, true)
@@ -62,7 +62,12 @@ Deno.test({
     name: "e2e: renders the flange as STEP",
     ignore,
     async fn() {
-        const run = await cadscript("examples/flange.ts", "-n", "8", "--step")
+        const run = await cadscript(
+            "examples/flange.ts",
+            "--bolts",
+            "8",
+            "--step",
+        )
         assertEquals(run.code, 0)
         assertStringIncludes(text(run), "ISO-10303-21")
     },
@@ -103,7 +108,7 @@ Deno.test({
     name: "e2e: reports a parse failure from the script's own parser",
     ignore,
     async fn() {
-        const run = await cadscript("examples/box.ts", "-w", "nope")
+        const run = await cadscript("examples/box.ts", "--width", "nope")
         assertEquals(run.code, 1)
         assertStringIncludes(run.stderr, "valid number")
     },
