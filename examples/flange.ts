@@ -20,21 +20,21 @@ interface Options {
 
 export default {
     parser: object({
-        radius: option("-r", "--radius", float({ min: 1 }), {
+        radius: option("--radius", float({ min: 1 }), {
             description: message`The outer radius of the flange.`,
         }).withDefault(40),
-        bore: option("-b", "--bore", float({ min: 1 }), {
+        bore: option("--bore", float({ min: 1 }), {
             description: message`The radius of the central bore.`,
-        }).withDefault(15),
-        bolts: option("-n", "--bolts", integer({ min: 0 }), {
+        }).withDefault(20),
+        bolts: option("--bolts", integer({ min: 0 }), {
             description: message`How many bolt holes to space around it.`,
-        }).withDefault(6),
+        }).withDefault(5),
         boltRadius: option("--bolt-radius", float({ min: 0.5 }), {
             description: message`The radius of each bolt hole.`,
-        }).withDefault(3),
-        thickness: option("-t", "--thickness", float({ min: 0.1 }), {
+        }).withDefault(2),
+        thickness: option("--thickness", float({ min: 0.1 }), {
             description: message`How thick the flange is.`,
-        }).withDefault(6),
+        }).withDefault(5),
     }),
 
     render(options: Options): Promise<AnyShape> {

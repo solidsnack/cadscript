@@ -17,18 +17,18 @@ interface Options {
 
 export default {
     parser: object({
-        width: option("-w", "--width", float({ min: 1 }), {
+        width: option("--width", float({ min: 1 }), {
             description: message`How wide the box is, in millimetres.`,
         }).withDefault(30),
-        depth: option("-D", "--depth", float({ min: 1 }), {
+        depth: option("--depth", float({ min: 1 }), {
             description: message`How deep the box is, in millimetres.`,
         }).withDefault(20),
-        height: option("-H", "--height", float({ min: 1 }), {
+        height: option("--height", float({ min: 1 }), {
             description: message`How tall the box is, in millimetres.`,
         }).withDefault(10),
-        radius: option("-r", "--radius", float({ min: 0 }), {
+        radius: option("--radius", float({ min: 0 }), {
             description: message`The radius of the rounded corners.`,
-        }).withDefault(3),
+        }).withDefault(5),
     }),
 
     render({ width, depth, height, radius }: Options) {
